@@ -18,24 +18,38 @@ class TaskController extends Controller
 
         if ($request->task == null) {
             abort(404);
-           /*  $invalid = "invalid task";
-            return view('mainpage', ['invalid' => $invalid]); */
         }
 
             $newTask->tasks = $request->task; //! $request->task is referring to the name="" in our view 
             $newTask->is_complete = 0;
+            $newTask->task_date = date("Y-m-d");
+            
+            if($request->day === "tomorrow") {
+
+                $date = date_create(date("Y-m-d"));
+                date_add($date, date_interval_create_from_date_string("2 days"));
+                $newTask->date_of_completion = date_format($date, "Y-m-d");
+                
+            } elseif($request->day === "today") {
+
+                $newTask->date_of_completion = date("Y-m-d");
+            }
+            
             $newTask->save(); //^ Do this to save it into our database.
             return redirect('/');
-        
       
         /* return view('mainpage', ['tasks' => task::all()]); *///& confirm resubmission will always pop up using this, therefore we redirect to main route
 
          //* after saving item when we click the button, it will redirect us to our default route.
     }
-    public function index()
-    {
-        //
+    public function index(/* Task $task */)
+    {   
+       /*  $currentDate = date_create(date("Y-m-d"));
+        $taskDate = date_create($task->date);
+        $date_differences = date_diff($currentDate, $taskDate); */
+        
         return view('mainpage', [
+            /* 'date_differences' => $date_differences, */
             'tasks' => task::where('is_complete', 0)->get(),
             'completedTasks' => task::where('is_complete', 1)->get()
         ]);
@@ -43,7 +57,6 @@ class TaskController extends Controller
 
     public function markComplete($id)
     {
-        //
         $completedTask = task::find($id);
         $completedTask->is_complete = 1;
         $completedTask->save();
@@ -51,20 +64,15 @@ class TaskController extends Controller
     }
 
     public function editRoute(Task $task) {
+
         return view('edit', [
             'task' => $task
         ]);
+
     }
 
     public function updateRoute(Request $request, Task $task) {
-        /* $task->tasks = $request->tasks;
-
-        $task->save(); */
-        /* $validated = $request->validate([
-            'task' => 'string|max:255',
-        ]);
  
-        $task->update($validated); */
         $task->tasks = $request->task;
         $task->save();
 
@@ -102,13 +110,6 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         //
-        /* $validated = $request->validate([
-            'tasks' => 'required',
-        ]);
- 
-        $request->user()->tasks()->create($validated);
- 
-       return redirect(route('/')); */ 
     }
 
     /**

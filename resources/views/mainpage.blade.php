@@ -1,24 +1,30 @@
 <x-layout>
-    <div class="mt-10 ml-10 mx-auto flex justify-center">
+    {{-- remember to use date_diff() function --}}
         <form method="POST" action="{{ route('saveItem') }}">
-            @csrf
-            <input 
-            type="text" 
-            class="bg-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-gray-900 focus:ring focus:ring-blue-300 w-72
-            disabled:opacity-25 transition"
-            placeholder="enter task"
-            name="task">
-            {{-- <button class="nline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" type="submit"> Create </button>
+            <div class="mt-8 mx-auto flex justify-center items-center">
+                @csrf
+                <input 
+                type="text" 
+                class=" bg-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-gray-900 focus:ring focus:ring-blue-300 w-72
+                disabled:opacity-25 transition shadow-[inset_7px_7px_7px_#dbdbdb,_inset_-7px_-7px_7px_#fcfcfc]"
+                placeholder="enter task"
+                name="task">
+                    
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-[#777777] ml-8 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                </svg>
+                <select name="day" class="bg-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:border-gray-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition shadow-[inset_7px_7px_7px_#dbdbdb,_inset_-7px_-7px_7px_#fcfcfc] text-[#555] mr-8">
+                    <option value="today" name="today" class="px-3 py-1 rounded-lg focus:outline-none focus:border-gray-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition text-[#555]">Today</option>
+                    <option value="tomorrow" name="tomorrow" class="px-3 py-1 rounded-lg focus:outline-none focus:border-gray-900 focus:ring focus:ring-blue-300 disabled:opacity-25 transition text-[#555]">Tomorrow</option>
+                </select>
+                    
+                <button 
+                type="submit" 
+                class="shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] px-4 py-[7px] rounded-lg hover:transition duration-300 ease-in-out text-[#444] hover:bg-[#333] hover:text-white ml-3"> Create Task </button>
+                {{-- <p>{{ $invalid }}</p> --}}
             </div>
-            <button class="transition ease-in-out delay-150 bg-blue-500  hover:bg-indigo-500 duration-200">
-                Save Changes
-            </button> --}}
-        <button 
-        type="submit" 
-        class="shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] px-4 py-[7px] rounded-lg hover:transition duration-300 ease-in-out text-[#444] hover:bg-[#333] hover:text-white ml-3"> Create Task </button>
-        {{-- <p>{{ $invalid }}</p> --}}
         </form>
-    </div>
+
 
     {{-- <div class="mt-8 mx-auto px-3 bg-[#999] w-1/2 py-3 rounded-lg">
         {{ old('tasks') }}
@@ -26,9 +32,24 @@
     </div> --}}
     <div class="mt-10"></div>
     @foreach($tasks as $task)
-            <div class="flex w-4/5 justify-between items-center mx-auto px-10 py-4 my-1 rounded-lg shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] my-5">
+    
+                  <div class="flex w-4/5 justify-between items-center mx-auto px-10 py-4 my-1 rounded-lg shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] my-5">
                     <p class="text-[#555]">{{ $task->tasks }}</p>
-                    <div class="flex">
+                   {{-- <p>{{ $task->created_at->format('Y-m-d H:i:s')}}</p> --}}
+                    
+                   <div class="flex">
+                    <form action="" class="flex">
+                        @php
+                           $diff = date_diff(new \DateTime, date_create($task->date_of_completion))
+                        @endphp
+                        @if($diff->format('%R') == '+') 
+                            <x-time-layout>{{ $diff->format("%d day left") }}</x-time-layout>                         
+                        @elseif($diff->format('%R') == '-' && $diff->format('%d') == '0') 
+                            <x-time-layout>{{ $diff->format("Final day") }}</x-time-layout>    
+                        @elseif ($diff->format('%R') == '-' && $diff->format('%d') !== '0') 
+                            <p class="flex items-center ml-5 mr-3 shadow-[inset_6px_6px_15px_#e0e0e0,_inset_-6px_-6px_15px_#fcfcfc] px-4 py-1 rounded-lg text-red-500 w-36 justify-center">{{ $diff->format("%d days ago") }}</p>
+                        @endif
+                    </form>
                     <form method="POST" action="{{ route('markComplete', $task->id) }}">
                         @csrf
                         <button class="ml-4 "> 
@@ -37,7 +58,6 @@
                             </svg>
                         </button>
                     </form>
-
                     <form action="{{ route('editRoute', $task) }}">
                         <button>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-[#777777] hover:text-blue-500 mx-3 ">
