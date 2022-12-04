@@ -18,7 +18,7 @@ class TaskController extends Controller
 
         if ($request->task == null) {
             abort(404);
-        }
+    }
 
             $newTask->tasks = $request->task; //! $request->task is referring to the name="" in our view 
             $newTask->is_complete = 0;
