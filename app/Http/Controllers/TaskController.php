@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\task;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -16,40 +17,29 @@ class TaskController extends Controller
 
         $newTask = new task; //? task in here represents the model
 
-        if ($request->task == null) {
-            abort(404);
-    }
+         $request->validate([
+            'task' => 'required',
+        ]);
 
-            $newTask->tasks = $request->task; //! $request->task is referring to the name="" in our view 
-            $newTask->is_complete = 0;
-            $newTask->task_date = date("Y-m-d");
+        $newTask->tasks = $request->task;
             
-            if($request->day === "tomorrow") {
+        $newTask->is_complete = 0;
 
-                $date = date_create(date("Y-m-d"));
-                date_add($date, date_interval_create_from_date_string("2 days"));
-                $newTask->date_of_completion = date_format($date, "Y-m-d");
-                
-            } elseif($request->day === "today") {
+        if($request->day === "today") {
+            $newTask->date_of_completion = now()->addDay();
+        } elseif ($request->day === "tomorrow") {
+            $newTask->date_of_completion = now()->addDays(2);
+        }
 
-                $newTask->date_of_completion = date("Y-m-d");
-            }
-            
-            $newTask->save(); //^ Do this to save it into our database.
-            return redirect('/');
-      
-        /* return view('mainpage', ['tasks' => task::all()]); *///& confirm resubmission will always pop up using this, therefore we redirect to main route
+        $newTask->save();
+        return redirect('/');
 
-         //* after saving item when we click the button, it will redirect us to our default route.
     }
     public function index(/* Task $task */)
     {   
-       /*  $currentDate = date_create(date("Y-m-d"));
-        $taskDate = date_create($task->date);
-        $date_differences = date_diff($currentDate, $taskDate); */
         
         return view('mainpage', [
-            /* 'date_differences' => $date_differences, */
+            'currentTime' => Carbon::now(),
             'tasks' => task::where('is_complete', 0)->get(),
             'completedTasks' => task::where('is_complete', 1)->get()
         ]);
@@ -84,76 +74,5 @@ class TaskController extends Controller
         $task->delete();
  
         return redirect('/');
-    } /* catch (\Exception $e) {
-
-        return redirect()->withErrors(['msg' => 'The Error: '.$e->getMessage()]);
-    
-    } */
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function show(task $task)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(task $task)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, task $task)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(task $task)
-    {
-        //
-    }
-}
+} 

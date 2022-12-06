@@ -17,8 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('tasks');
             $table->integer('is_complete');
-            $table->string('task_date');
-            $table->string("date_of_completion");
+            $table->timestamp("date_of_completion");
             $table->timestamps();
         });
     }

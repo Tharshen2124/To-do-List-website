@@ -1,1 +1,1 @@
-<p class="flex items-center ml-5 mr-3 shadow-[inset_6px_6px_15px_#e0e0e0,_inset_-6px_-6px_15px_#fcfcfc] px-4 py-1 rounded-lg text-[#555] w-36 justify-center">{{ $slot }}</p> 
+<p class="flex items-center ml-5 mr-3 shadow-[inset_6px_6px_15px_#e0e0e0,_inset_-6px_-6px_15px_#fcfcfc] px-4 py-1 rounded-lg text-[#555] w-40 justify-center">{{ $slot }}</p> 

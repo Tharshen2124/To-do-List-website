@@ -1,5 +1,9 @@
 <x-layout>
-    {{-- remember to use date_diff() function --}}
+        @if($errors->any())
+            @foreach($errors->all() as $error)
+                <p class="text-white w-5/6 flex justify-center py-2 border-2 border-solid border-red-500 mt-4 mx-auto rounded-lg bg-red-500">You didn't enter your task!</p>
+            @endforeach
+        @endif
         <form method="POST" action="{{ route('saveItem') }}">
             <div class="mt-8 mx-auto flex justify-center items-center">
                 @csrf
@@ -21,34 +25,29 @@
                 <button 
                 type="submit" 
                 class="shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] px-4 py-[7px] rounded-lg hover:transition duration-300 ease-in-out text-[#444] hover:bg-[#333] hover:text-white ml-3"> Create Task </button>
-                {{-- <p>{{ $invalid }}</p> --}}
             </div>
         </form>
 
-
-    {{-- <div class="mt-8 mx-auto px-3 bg-[#999] w-1/2 py-3 rounded-lg">
-        {{ old('tasks') }}
-        <input type="checkbox" class="float-right mt-1 w-4 h-4 rounded-lg">
-    </div> --}}
     <div class="mt-10"></div>
     @foreach($tasks as $task)
     
-                  <div class="flex w-4/5 justify-between items-center mx-auto px-10 py-4 my-1 rounded-lg shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] my-5">
+                  <div class="flex w-5/6 justify-between items-center mx-auto px-10 py-4 my-1 rounded-lg shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] my-5">
                     <p class="text-[#555]">{{ $task->tasks }}</p>
                    {{-- <p>{{ $task->created_at->format('Y-m-d H:i:s')}}</p> --}}
-                    
+
                    <div class="flex">
                     <form action="" class="flex">
+
                         @php
-                           $diff = date_diff(new \DateTime, date_create($task->date_of_completion))
+                           $diff = now()->diffForHumans($task->date_of_completion);
                         @endphp
-                        @if($diff->format('%R') == '+') 
-                            <x-time-layout>{{ $diff->format("%d day left") }}</x-time-layout>                         
-                        @elseif($diff->format('%R') == '-' && $diff->format('%d') == '0') 
-                            <x-time-layout>{{ $diff->format("Final day") }}</x-time-layout>    
-                        @elseif ($diff->format('%R') == '-' && $diff->format('%d') !== '0') 
-                            <p class="flex items-center ml-5 mr-3 shadow-[inset_6px_6px_15px_#e0e0e0,_inset_-6px_-6px_15px_#fcfcfc] px-4 py-1 rounded-lg text-red-500 w-36 justify-center">{{ $diff->format("%d days ago") }}</p>
-                        @endif
+
+                        @if ($task->date_of_completion->greaterThan($currentTime))
+                            <x-time-layout>{{ $diff }}</x-time-layout> 
+                        @else
+                            <x-timeSecond-layout>{{ $diff }}</x-time-layout> 
+                        @endif         
+
                     </form>
                     <form method="POST" action="{{ route('markComplete', $task->id) }}">
                         @csrf
@@ -82,7 +81,7 @@
     <hr>
     <br>
     @foreach($completedTasks as $completedTask)
-    <div class="flex w-4/5 justify-between items-center mx-auto px-10 py-4 shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] my-1 rounded-lg bg-gray-300 opacity-50">
+    <div class="flex w-5/6 justify-between items-center mx-auto px-10 py-4 shadow-[7px_7px_14px_#e2e2e2,_-7px_-7px_14px_#fafafa] my-1 rounded-lg bg-gray-300 opacity-50">
         <p class=""><s>{{ $completedTask->tasks }}</s></p>  
             <form action="{{ route('deleteRoute', $completedTask->id) }}" method="post">
                 @csrf

@@ -1,0 +1,2 @@
+Problems that need to be solved
+2. How do i fix my sql table so that it accepts values up to miliseconds
